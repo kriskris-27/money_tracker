@@ -1,19 +1,52 @@
+import { useState } from 'react';
 import './App.css';
 
+
 function App() {
+    const [name, setName] = useState('');
+    const [datetime,setDatetime] =useState('');
+    const [description,setDescription] =useState('')
+    function addNewTransaction(ev){
+        ev.preventDefault();
+        const url=process.env.REACT_APP_API_URL+'/api/transaction';
+        console.log(url);
+        // console.log("API URL:", process.env.REACT_APP_API_URL);
+        fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, description, datetime }),
+        })
+        .then(response => response.json())
+        .then(json => console.log("Result:", json))
+        .catch(error => console.error("Fetch error:", error));
+        
+
+    }
+
   return (
     <main>
         <h1>$400<span>.00</span></h1>
-        <form>
+        <form onSubmit={addNewTransaction}>
            <div className='basic'>
-            <input type="text" placeholder='+200 for nirmala akka shop'/>
-           <input type="datetime-local"/>
+            <input type="text" 
+                    value ={name}
+                    onChange={ev => setName(ev.target.value)}
+                    placeholder='+200 for nirmala akka shop'/>
+           <input 
+                vaule={datetime} 
+                onChange={ev=>setDatetime(ev.target.value)}
+            type="datetime-local"/>
            </div>
-           <div>
-           <input type='text'/>
+           <div className='description'>
+           <input type='text' 
+           value={description} 
+           onChange={ev=> setDescription(ev.target.value)}
+           placeholder='description'/>
            </div>
             <button type='submit'>Add new transaction</button>
         </form>
+
+
         <div className='transactions'> 
             <div className='transaction'>
                 <div className='left'>
