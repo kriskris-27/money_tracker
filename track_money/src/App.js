@@ -6,21 +6,21 @@ function App() {
     const [datetime, setDatetime] = useState('');
     const [description, setDescription] = useState('');
     const [transactions, setTransactions] = useState([]);
-    const [balance, setBalance] = useState(0); // ✅ Store balance
+    const [balance, setBalance] = useState(0);
 
     useEffect(() => {
         async function fetchTransactions() {
             try {
                 const data = await getTransaction();
                 setTransactions(data);
-                calculateBalance(data); // ✅ Update balance after fetching transactions
+                calculateBalance(data);
             } catch (error) {
                 console.error("Error fetching transactions:", error);
             }
         }
 
         fetchTransactions();
-    }, []); // ✅ Runs once on mount
+    }, []);
 
     async function getTransaction() {
         const url = process.env.REACT_APP_API_URL + "/api/transaction";
@@ -33,16 +33,17 @@ function App() {
         const url = process.env.REACT_APP_API_URL + "/api/transaction";
         console.log(url);
 
-        // ✅ Extract and parse price correctly
-        const priceMatch = name.match(/^([+-]?\d+(\.\d{1,2})?)/); // Supports decimal values
-        const price = priceMatch ? parseFloat(priceMatch[0]) : 0; 
+        // ✅ Extract amount while keeping the name
+        const priceMatch = name.match(/^([+-]?\d+(\.\d{1,2})?)/);
+        const price = priceMatch ? parseFloat(priceMatch[0]) : 0;
+        const cleanName = name.replace(priceMatch?.[0], '').trim(); // Remove amount from name
 
         fetch(url, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 price,
-                name: name.substring(price.length + 1).trim(), // ✅ Remove price from name
+                name: cleanName, // ✅ Name without amount
                 description,
                 datetime,
             }),
@@ -51,7 +52,7 @@ function App() {
         .then(json => {
             const updatedTransactions = [...transactions, json]; 
             setTransactions(updatedTransactions);
-            calculateBalance(updatedTransactions); // ✅ Update balance after adding transaction
+            calculateBalance(updatedTransactions);
 
             setName('');
             setDatetime('');
@@ -60,19 +61,17 @@ function App() {
         .catch(error => console.error("Fetch error:", error));
     }
 
-    // ✅ Update balance when transactions change
     function calculateBalance(transactionsList) {
         const total = transactionsList.reduce((sum, transaction) => sum + parseFloat(transaction.price), 0);
         setBalance(total);
     }
 
-    // ✅ Format balance with two decimal places
     const formattedBalance = balance.toFixed(2);
     const [whole, fraction] = formattedBalance.split('.');
 
     return (
         <main>
-            <h1>${whole}<span>.{fraction}</span></h1> {/* ✅ Correct balance display */}
+            <h1>${whole}<span>.{fraction}</span></h1> 
             <form onSubmit={addNewTransaction}>
                 <div className='basic'>
                     <input 
@@ -100,14 +99,14 @@ function App() {
 
             <div className='transactions'> 
                 {transactions.length > 0 && transactions.map(transaction => (
-                    <div className='transaction' key={transaction._id}> {/* ✅ Unique key */}
+                    <div className='transaction' key={transaction._id}>
                         <div className='left'>
-                            <div className='name'>{transaction.name}</div>
+                            <div className='name'>{transaction.name}</div> {/* ✅ Only name here */}
                             <div className='description'>{transaction.description}</div>
                         </div>
                         <div className='right'>
                             <div className={'price ' + (transaction.price < 0 ? 'red' : 'green')}>
-                                {transaction.price}
+                                {transaction.price} {/* ✅ Only amount here */}
                             </div>
                             <div className='datetime'>{new Date(transaction.datetime).toLocaleString()}</div>
                         </div>
