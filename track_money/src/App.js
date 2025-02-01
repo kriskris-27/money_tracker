@@ -11,14 +11,15 @@ function App() {
         const url=process.env.REACT_APP_API_URL+'/api/transaction';
         console.log(url);
         // console.log("API URL:", process.env.REACT_APP_API_URL);
-        fetch(url, {
+        fetch(url, {  // ✅ Fixed spacing and brackets
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, description, datetime }),
+            body: JSON.stringify({ name, description, datetime })
         })
         .then(response => response.json())
         .then(json => console.log("Result:", json))
         .catch(error => console.error("Fetch error:", error));
+        
         
 
     }
@@ -33,7 +34,7 @@ function App() {
                     onChange={ev => setName(ev.target.value)}
                     placeholder='+200 for nirmala akka shop'/>
            <input 
-                vaule={datetime} 
+                value={datetime} 
                 onChange={ev=>setDatetime(ev.target.value)}
             type="datetime-local"/>
            </div>
